@@ -1,3 +1,4 @@
+import type { ProductType } from "@/types";
 import products from "@/data/products";
 import Categories from "./Categories";
 import ProductCard from "./ProductCard";
@@ -12,7 +13,7 @@ const ProductList = ({ category, params }: { category?: string; params: "homepag
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-12">
         {products.map((product) => (
           <Link key={product.id} href={`/products/${product.id}`} className="block">
-            <ProductCard product={product as any} />
+            <ProductCard product={product as unknown as ProductType} />
           </Link>
         ))}
       </div>

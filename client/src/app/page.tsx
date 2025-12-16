@@ -1,7 +1,11 @@
 import ProductList from "@/component/ProductList";
 import Image from "next/image";
 
-const Homepage = ({ searchParams }: { searchParams?: { category?: string } }) => {
+const Homepage = async ({
+	searchParams,
+}: {
+	searchParams?: { category?: string };
+}) => {
 	const category = searchParams?.category ?? "";
 
 	return (

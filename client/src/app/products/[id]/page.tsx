@@ -2,14 +2,16 @@ import ProductInteraction from "@/component/ProductInteraction";
 import Image from "next/image";
 import products from "@/data/products";
 import Link from "next/link";
+import type { ProductType } from "@/types";
 
+// Update: accept plain params (not Promise) to match App Router PageProps shape
 export const generateMetadata = async ({
   params,
 }: {
   params: { id: string };
 }) => {
-  // find product for metadata
   const id = parseInt(params.id, 10);
+
   const found = products.find((p) => p.id === id);
   if (!found) {
     return { title: "Product not found" };
@@ -20,6 +22,7 @@ export const generateMetadata = async ({
   };
 };
 
+// change: accept plain params/searchParams (not Promise) and don't await them
 export default async function ProductPage({
   params,
   searchParams,
@@ -28,6 +31,12 @@ export default async function ProductPage({
   searchParams?: { color?: string; size?: string };
 }) {
   const id = parseInt(params.id, 10);
+
+  const sp = (searchParams ?? {}) as {
+    color?: string;
+    size?: string;
+  };
+
   const foundProduct = products.find((p) => p.id === id);
 
   if (!foundProduct) {
@@ -43,8 +52,8 @@ export default async function ProductPage({
     );
   }
 
-  const colorParam = searchParams?.color;
-  const sizeParam = searchParams?.size;
+  const colorParam = sp.color;
+  const sizeParam = sp.size;
 
   // Choose a valid color key that exists on the product.images map
   const availableColors = Object.keys(foundProduct.images) as Array<
@@ -61,6 +70,9 @@ export default async function ProductPage({
     (foundProduct.images && foundProduct.images[selectedColor]) ||
     Object.values(foundProduct.images)[0] ||
     "/placeholder.png";
+
+  // Narrow the product type for downstream components
+  const productTyped = foundProduct as unknown as ProductType;
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row md:gap-12 mt-12">
@@ -87,8 +99,8 @@ export default async function ProductPage({
         </h2>
 
         <ProductInteraction
-          product={foundProduct as any}
-          selectedSize={sizeParam || foundProduct.sizes[0]}
+          product={productTyped}
+          selectedSize={sp.size || foundProduct.sizes[0]}
           selectedColor={selectedColor}
         />
 

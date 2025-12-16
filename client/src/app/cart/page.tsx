@@ -3,11 +3,11 @@
 import PaymentForm from "@/component/PaymentForm";
 import ShippingForm from "@/component/ShippingForm";
 import useCartStore from "@/app/stores/cartStore";
-import { CartItemsType, ShippingFormInputs } from "@/types";
+import { ShippingFormInputs } from "@/types";
 import { ArrowRight, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 const steps = [
   {
@@ -24,69 +24,23 @@ const steps = [
   },
 ];
 
-// TEMPORARY
-// const cartItems: CartItemsType = [
-//   {
-//     id: 1,
-//     name: "Adidas CoreFit T-Shirt",
-//     shortDescription:
-//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-//     description:
-//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-//     price: 39.9,
-//     sizes: ["s", "m", "l", "xl", "xxl"],
-//     colors: ["gray", "purple", "green"],
-//     images: {
-//       gray: "/products/1g.png",
-//       purple: "/products/1p.png",
-//       green: "/products/1gr.png",
-//     },
-//     quantity: 1,
-//     selectedSize: "m",
-//     selectedColor: "gray",
-//   },
-//   {
-//     id: 2,
-//     name: "Puma Ultra Warm Zip",
-//     shortDescription:
-//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-//     description:
-//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-//     price: 59.9,
-//     sizes: ["s", "m", "l", "xl"],
-//     colors: ["gray", "green"],
-//     images: { gray: "/products/2g.png", green: "/products/2gr.png" },
-//     quantity: 1,
-//     selectedSize: "l",
-//     selectedColor: "gray",
-//   },
-//   {
-//     id: 3,
-//     name: "Nike Air Essentials Pullover",
-//     shortDescription:
-//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-//     description:
-//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-//     price: 69.9,
-//     sizes: ["s", "m", "l"],
-//     colors: ["green", "blue", "black"],
-//     images: {
-//       green: "/products/3gr.png",
-//       blue: "/products/3b.png",
-//       black: "/products/3bl.png",
-//     },
-//     quantity: 1,
-//     selectedSize: "l",
-//     selectedColor: "black",
-//   },
-// ];
-
 const CartPage = () => {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [shippingForm, setShippingForm] = useState<ShippingFormInputs>();
 
-  const activeStep = parseInt(searchParams.get("step") || "1");
+  const getStepFromUrl = () =>
+    typeof window === "undefined"
+      ? 1
+      : parseInt(new URLSearchParams(window.location.search).get("step") || "1");
+
+  const [activeStep, setActiveStep] = useState<number>(getStepFromUrl);
+
+  useEffect(() => {
+    const onPop = () => setActiveStep(getStepFromUrl());
+    window.addEventListener("popstate", onPop);
+    setActiveStep(getStepFromUrl());
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   const { cart, removeFromCart } = useCartStore();
   return (
@@ -211,7 +165,10 @@ const CartPage = () => {
           </div>
           {activeStep === 1 && (
             <button
-              onClick={() => router.push("/cart?step=2", { scroll: false })}
+              onClick={() => {
+                router.push("/cart?step=2", { scroll: false });
+                setActiveStep(2);
+              }}
               className="w-full bg-gray-800 hover:bg-gray-900 transition-all duration-300 text-white p-2 rounded-lg cursor-pointer flex items-center justify-center gap-2"
             >
               Continue
