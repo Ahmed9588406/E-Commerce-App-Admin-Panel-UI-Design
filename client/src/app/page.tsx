@@ -4,9 +4,9 @@ import Image from "next/image";
 const Homepage = async ({
 	searchParams,
 }: {
-	searchParams?: { category?: string };
+	searchParams: Promise<{ category?: string }>;
 }) => {
-	const category = searchParams?.category ?? "";
+	const category = (await searchParams)?.category ?? "";
 
 	return (
 		<div className="">
