@@ -8,9 +8,10 @@ import type { ProductType } from "@/types";
 export const generateMetadata = async ({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) => {
-  const id = parseInt(params.id, 10);
+  const { id: idStr } = await params;
+  const id = parseInt(idStr, 10);
 
   const found = products.find((p) => p.id === id);
   if (!found) {
@@ -27,15 +28,12 @@ export default async function ProductPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams?: { color?: string; size?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ color?: string; size?: string }>;
 }) {
-  const id = parseInt(params.id, 10);
-
-  const sp = (searchParams ?? {}) as {
-    color?: string;
-    size?: string;
-  };
+  const { id: idStr } = await params;
+  const id = parseInt(idStr, 10);
+  const sp = await searchParams;
 
   const foundProduct = products.find((p) => p.id === id);
 
